@@ -3,7 +3,7 @@
   <Role name="MyFixIt.WorkerRole">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={StorageAccountName};AccountKey={StorageAccountAccessKey}" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=reashorestorage;AccountKey=i8wOg5UWEhVlpH2G3Fy7e1CxHotjhiThDMaFXTl6RdJrDgxVVBwLzLTK2dwz+ImCoGSAbS1B+zAIVREmbFaIaA==" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

@@ -1,18 +1,4 @@
-﻿//
-// Copyright (C) Microsoft Corporation.  All rights reserved.
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
+﻿
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Newtonsoft.Json;
@@ -23,10 +9,10 @@ namespace MyFixIt.Persistence
 {
     public class FixItQueueManager : IFixItQueueManager
     {
-        private CloudQueueClient _queueClient;
-        private IFixItTaskRepository _repository;
+        private readonly CloudQueueClient _queueClient;
+        private readonly IFixItTaskRepository _repository;
 
-        private static readonly string fixitQueueName = "fixits";
+        private static readonly string FixitQueueName = "fixits";
 
         public FixItQueueManager(IFixItTaskRepository repository)
         {
@@ -38,7 +24,7 @@ namespace MyFixIt.Persistence
         // Puts a serialized fixit onto the queue.
         public async Task SendMessageAsync(FixItTask fixIt)
         {
-            CloudQueue queue = _queueClient.GetQueueReference(fixitQueueName);
+            CloudQueue queue = _queueClient.GetQueueReference(FixitQueueName);
             await queue.CreateIfNotExistsAsync();
 
             var fixitJson = JsonConvert.SerializeObject(fixIt);
@@ -50,7 +36,7 @@ namespace MyFixIt.Persistence
         // Processes any messages on the queue.
         public async Task ProcessMessagesAsync(CancellationToken token)
         {
-            CloudQueue queue = _queueClient.GetQueueReference(fixitQueueName);
+            CloudQueue queue = _queueClient.GetQueueReference(FixitQueueName);
             await queue.CreateIfNotExistsAsync();
 
             while (!token.IsCancellationRequested)

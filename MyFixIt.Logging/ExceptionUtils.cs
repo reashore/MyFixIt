@@ -1,18 +1,4 @@
-﻿//
-// Copyright (C) Microsoft Corporation.  All rights reserved.
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -24,27 +10,29 @@ namespace MyFixIt.Logging
 {
     public class ExceptionUtils
     {
-        public static string FormatExceptionSimple(Exception ex)
+        public static string FormatExceptionSimple(Exception exception)
         {
-            if (ex == null)
+            if (exception == null)
                 return String.Empty;
+
             var sb = new StringBuilder();
+
             try
             {
-                sb.AppendFormat("\r\n-----------\r\n{0}", ex.ToString());
+                sb.AppendFormat("\r\n-----------\r\n{0}", exception);
             }
             catch (Exception ex0)
             {
-                sb.AppendFormat("Warning; Could not format exception {0}", ex0.ToString());
+                sb.AppendFormat("Warning; Could not format exception {0}", ex0);
             }
+
             return sb.ToString();
         }
 
         /// <summary>
         /// By default return Exception.ToString()
         /// </summary>
-        private static readonly Func<Exception, string> defaultFormatter =
-            (ex) => (ex == null) ? String.Empty : ex.ToString();
+        private static readonly Func<Exception, string> DefaultFormatter = (ex) => (ex == null) ? String.Empty : ex.ToString();
 
         #region "Specialized Formatters"
         /// <summary>
@@ -91,18 +79,17 @@ namespace MyFixIt.Logging
 
                 AppendExceptionInfo(sb, ex, 0);
             }
-            catch (Exception ex0)
+            catch (Exception exception)
             {
-                sb.AppendFormat("Warning; Could not format exception {0}", ex0.ToString());
+                sb.AppendFormat("Warning; Could not format exception {0}", exception);
             }
 
             return sb.ToString();
         }
          
-        private static void AppendExceptionInfo(StringBuilder sb,
-            Exception exception, int depth)
+        private static void AppendExceptionInfo(StringBuilder sb, Exception exception, int depth)
         {
-            Func<Exception, string> formatter = defaultFormatter;
+            Func<Exception, string> formatter = DefaultFormatter;
             if (FormatExceptionMap.ContainsKey(exception.GetType()))
                 formatter = FormatExceptionMap[exception.GetType()];
 
@@ -117,7 +104,7 @@ namespace MyFixIt.Logging
 
             sb.AppendFormat("[Context] assembly={0},version={1},buildTime={2},appDomain={3},basePath={4}",
                 currentAssembly.FullName,
-                currentAssembly.GetName().Version.ToString(),
+                currentAssembly.GetName().Version,
                 lastWritten,
                 AppDomain.CurrentDomain.FriendlyName,
                 AppDomain.CurrentDomain.SetupInformation.ApplicationBase);

@@ -1,18 +1,4 @@
-﻿//
-// Copyright (C) Microsoft Corporation.  All rights reserved.
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
+﻿
 using MyFixIt.Logging;
 using System;
 using System.Collections.Generic;
@@ -25,29 +11,29 @@ namespace MyFixIt.Persistence
 {
     public class FixItTaskRepository : IFixItTaskRepository, IDisposable
     {
-        private MyFixItContext db = new MyFixItContext();
-        private ILogger log = null;
+        private MyFixItContext _db = new MyFixItContext();
+        private readonly ILogger _log;
 
         public FixItTaskRepository(ILogger logger)
         {
-            log = logger;
+            _log = logger;
         }
 
         public async Task<FixItTask> FindTaskByIdAsync(int id)
         {
-            FixItTask fixItTask = null;
+            FixItTask fixItTask;
             Stopwatch timespan = Stopwatch.StartNew();
 
             try
             {
-                fixItTask = await db.FixItTasks.FindAsync(id);
+                fixItTask = await _db.FixItTasks.FindAsync(id);
                 
                 timespan.Stop();
-                log.TraceApi("SQL Database", "FixItTaskRepository.FindTaskByIdAsync", timespan.Elapsed, "id={0}", id);
+                _log.TraceApi("SQL Database", "FixItTaskRepository.FindTaskByIdAsync", timespan.Elapsed, "id={0}", id);
             }
             catch(Exception e)
             {
-               log.Error(e, "Error in FixItTaskRepository.FindTaskByIdAsync(id={0})", id);
+               _log.Error(e, "Error in FixItTaskRepository.FindTaskByIdAsync(id={0})", id);
                throw;
             }
 
@@ -60,19 +46,19 @@ namespace MyFixIt.Persistence
 
             try
             {
-                var result = await db.FixItTasks
+                var result = await _db.FixItTasks
                     .Where(t => t.Owner == userName)
                     .Where(t=>t.IsDone == false)
                     .OrderByDescending(t => t.FixItTaskId).ToListAsync();
 
                 timespan.Stop();
-                log.TraceApi("SQL Database", "FixItTaskRepository.FindTasksByOwnerAsync", timespan.Elapsed, "username={0}", userName);
+                _log.TraceApi("SQL Database", "FixItTaskRepository.FindTasksByOwnerAsync", timespan.Elapsed, "username={0}", userName);
 
                 return result;
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                log.Error(e, "Error in FixItTaskRepository.FindTasksByOwnerAsync(userName={0})", userName);
+                _log.Error(exception, "Error in FixItTaskRepository.FindTasksByOwnerAsync(userName={0})", userName);
                 throw;
             }
         }
@@ -83,18 +69,18 @@ namespace MyFixIt.Persistence
 
             try
             {
-                var result = await db.FixItTasks
+                var result = await _db.FixItTasks
                     .Where(t => t.CreatedBy == creator)
                     .OrderByDescending(t => t.FixItTaskId).ToListAsync();
 
                 timespan.Stop();
-                log.TraceApi("SQL Database", "FixItTaskRepository.FindTasksByCreatorAsync", timespan.Elapsed, "creater={0}", creator);
+                _log.TraceApi("SQL Database", "FixItTaskRepository.FindTasksByCreatorAsync", timespan.Elapsed, "creater={0}", creator);
 
                 return result;
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                log.Error(e, "Error in FixItTaskRepository.FindTasksByCreatorAsync(creater={0})", creator);
+                _log.Error(exception, "Error in FixItTaskRepository.FindTasksByCreatorAsync(creater={0})", creator);
                 throw;
             }
         }
@@ -104,15 +90,15 @@ namespace MyFixIt.Persistence
             Stopwatch timespan = Stopwatch.StartNew();
 
             try {
-                db.FixItTasks.Add(taskToAdd);
-                await db.SaveChangesAsync();
+                _db.FixItTasks.Add(taskToAdd);
+                await _db.SaveChangesAsync();
 
                 timespan.Stop();
-                log.TraceApi("SQL Database", "FixItTaskRepository.CreateAsync", timespan.Elapsed, "taskToAdd={0}", taskToAdd);
+                _log.TraceApi("SQL Database", "FixItTaskRepository.CreateAsync", timespan.Elapsed, "taskToAdd={0}", taskToAdd);
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                log.Error(e, "Error in FixItTaskRepository.CreateAsync(taskToAdd={0})", taskToAdd);
+                _log.Error(exception, "Error in FixItTaskRepository.CreateAsync(taskToAdd={0})", taskToAdd);
                 throw;
             }
         }
@@ -122,15 +108,15 @@ namespace MyFixIt.Persistence
             Stopwatch timespan = Stopwatch.StartNew();
 
             try {
-                db.Entry(taskToSave).State = EntityState.Modified;
-                await db.SaveChangesAsync();
+                _db.Entry(taskToSave).State = EntityState.Modified;
+                await _db.SaveChangesAsync();
 
                 timespan.Stop();
-                log.TraceApi("SQL Database", "FixItTaskRepository.UpdateAsync", timespan.Elapsed, "taskToSave={0}", taskToSave);
+                _log.TraceApi("SQL Database", "FixItTaskRepository.UpdateAsync", timespan.Elapsed, "taskToSave={0}", taskToSave);
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                log.Error(e, "Error in FixItTaskRepository.UpdateAsync(taskToSave={0})", taskToSave);
+                _log.Error(exception, "Error in FixItTaskRepository.UpdateAsync(taskToSave={0})", taskToSave);
                 throw;
             }
         }
@@ -141,17 +127,17 @@ namespace MyFixIt.Persistence
 
             try
             {
-                FixItTask fixittask = await db.FixItTasks.FindAsync(id);
-                db.FixItTasks.Remove(fixittask);
-                await db.SaveChangesAsync();
+                FixItTask fixittask = await _db.FixItTasks.FindAsync(id);
+                _db.FixItTasks.Remove(fixittask);
+                await _db.SaveChangesAsync();
 
                 timespan.Stop();
-                log.TraceApi("SQL Database", "FixItTaskRepository.DeleteAsync", timespan.Elapsed, "id={0}", id);
+                _log.TraceApi("SQL Database", "FixItTaskRepository.DeleteAsync", timespan.Elapsed, "id={0}", id);
 
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                log.Error(e, "Error in FixItTaskRepository.DeleteAsync(id={0})", id);
+                _log.Error(exception, "Error in FixItTaskRepository.DeleteAsync(id={0})", id);
                 throw;
             }
         }
@@ -166,11 +152,10 @@ namespace MyFixIt.Persistence
         {
             if (disposing)
             {
-                // Free managed resources
-                if (db != null)
+                if (_db != null)
                 {
-                    db.Dispose();
-                    db = null;
+                    _db.Dispose();
+                    _db = null;
                 }
             }
         }

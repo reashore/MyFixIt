@@ -1,18 +1,4 @@
-﻿//
-// Copyright (C) Microsoft Corporation.  All rights reserved.
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
+﻿
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using MyFixIt.Logging;
@@ -26,11 +12,11 @@ namespace MyFixIt.Persistence
 {
     public class PhotoService : IPhotoService
     {
-        ILogger log = null;
+	    readonly ILogger _log;
 
         public PhotoService(ILogger logger)
         {
-            log = logger;
+            _log = logger;
         }
 
         async public void CreateAndConfigureAsync()
@@ -54,12 +40,12 @@ namespace MyFixIt.Persistence
                                 BlobContainerPublicAccessType.Blob
                         });
 
-                    log.Information("Successfully created Blob Storage Images Container and made it public");
+                    _log.Information("Successfully created Blob Storage Images Container and made it public");
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                log.Error(ex, "Failure to Create or Configure images container in Blob Storage Service");
+                _log.Error(exception, "Failure to Create or Configure images container in Blob Storage Service");
                 throw;
             }
         }
@@ -71,7 +57,7 @@ namespace MyFixIt.Persistence
                 return null;
             }
 
-            string fullPath = null;
+            string fullPath;
             Stopwatch timespan = Stopwatch.StartNew();
 
             try
@@ -83,9 +69,7 @@ namespace MyFixIt.Persistence
                 CloudBlobContainer container = blobClient.GetContainerReference("images");
 
                 // Create a unique name for the images we are about to upload
-                string imageName = String.Format("task-photo-{0}{1}",
-                    Guid.NewGuid().ToString(),
-                    Path.GetExtension(photoToUpload.FileName));
+                string imageName = String.Format("task-photo-{0}{1}", Guid.NewGuid(), Path.GetExtension(photoToUpload.FileName));
 
                 // Upload image to Blob Storage
                 CloudBlockBlob blockBlob = container.GetBlockBlobReference(imageName);
@@ -95,11 +79,11 @@ namespace MyFixIt.Persistence
                 fullPath = blockBlob.Uri.ToString();
 
                 timespan.Stop();
-                log.TraceApi("Blob Service", "PhotoService.UploadPhoto", timespan.Elapsed, "imagepath={0}", fullPath);
+                _log.TraceApi("Blob Service", "PhotoService.UploadPhoto", timespan.Elapsed, "imagepath={0}", fullPath);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                log.Error(ex, "Error upload photo blob to storage");
+                _log.Error(exception, "Error upload photo blob to storage");
                 throw;
             }
 
