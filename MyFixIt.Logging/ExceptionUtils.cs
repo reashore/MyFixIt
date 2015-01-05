@@ -40,7 +40,7 @@ namespace MyFixIt.Logging
         /// information
         /// </summary>
         private static readonly IDictionary<Type, Func<Exception, string>>
-            FormatExceptionMap = new Dictionary<Type, Func<Exception, string>>()
+            FormatExceptionMap = new Dictionary<Type, Func<Exception, string>>
             {
                 { typeof(SqlException), (ex) => FormatSqlException(ex) }
             };
